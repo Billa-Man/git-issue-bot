@@ -1,1 +1,1 @@
-# 20-q-bot
+# git-issue-hound
