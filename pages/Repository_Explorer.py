@@ -4,6 +4,7 @@ from github_tools import GitHubRepoExplorerTool
 from settings import settings
 from application.functions import display_repos, get_button_label
 
+st.set_page_config(page_title='Repository Explorer')
 st.title('Repository Explorer')
 
 #---------- Main Filters ----------

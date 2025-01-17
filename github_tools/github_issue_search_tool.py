@@ -13,6 +13,7 @@ class GitHubIssueSearchToolInput(BaseModel):
 class GitHubIssueSearchTool(BaseTool):
     name: str = "GitHub Issue Search Tool"
     description: str = "Search GitHub issues based on language and labels."
+    
     args_schema: Type[BaseModel] = GitHubIssueSearchToolInput
     github_token: Optional[str] = Field(default = None, description = "GitHub API token")
     headers: dict = Field(default_factory=dict, description="Request headers")

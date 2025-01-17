@@ -1,11 +1,12 @@
 import streamlit as st
+from application.functions import get_button_label
+
+st.set_page_config(page_title='Trending Repositories')
+st.title('Trending Repositories')
 
 #---------- Sidebar ----------
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
-
-def get_button_label(chat_id, first_message):
-    return f"Chat {chat_id}: {' '.join(first_message.split()[:5])}..."
 
 with st.sidebar:
     st.header("Chat History")

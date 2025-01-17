@@ -7,6 +7,7 @@ from application.functions import display_issues, get_button_label
 from application.exceptions import NoIssuesFoundError
 
 # Title
+st.set_page_config(page_title='Issue Tracker')
 st.title('Issue Tracker')
 
 #---------- Topics ----------
