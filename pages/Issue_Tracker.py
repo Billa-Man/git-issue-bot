@@ -60,7 +60,6 @@ if st.button("Search Repositories and Issues"):
         display_issues(issues, num_issues=num_results)
     else:
         st.warning("No issues found matching the specified criteria.")
-        raise NoIssuesFoundError()
 
 #---------- Sidebar ----------
 

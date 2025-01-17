@@ -29,6 +29,8 @@ tools = [
         name="Wikidata Query",
         description="Query Wikidata for information",
     ),
+
+    # Code Interpreters
     ExecPython(),
     ExecJavaScript(),
 

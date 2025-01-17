@@ -1,5 +1,5 @@
 gih
-settings.env
+.env
 
 __pycache__/
 *.pyc

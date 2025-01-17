@@ -13,6 +13,9 @@ class Settings(BaseSettings):
   # Riza.io API
   RIZAIO_API_TOKEN: str | None = "YOUR_RIZAIO_API_TOKEN"
 
+  # SQL Database
+  SQL_DB_PASSWORD: str | None = "YOUR_SQL_DB_PASSWORD"
+
   @property
   def OPENAI_MAX_TOKEN_WINDOW(self) -> int:
     official_max_token_window = {
