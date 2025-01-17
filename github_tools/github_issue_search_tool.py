@@ -11,7 +11,7 @@ class GitHubIssueSearchToolInput(BaseModel):
 
 class GitHubIssueSearchTool(BaseTool):
     name: str = "GitHub Issue Search Tool"
-    description: str = "Search GitHub issues based on labels and repository domain."
+    description: str = "Search GitHub issues based on language and labels."
     args_schema: Type[BaseModel] = GitHubIssueSearchToolInput
     github_token: Optional[str] = Field(default = None, description = "GitHub API token")
     headers: dict = Field(default_factory=dict, description="Request headers")
@@ -24,16 +24,16 @@ class GitHubIssueSearchTool(BaseTool):
             "Accept": "application/vnd.github.v3+json"
         }
 
-    def _run(self, language: str, labels: List[str]) -> str:
+    def _run(self, params: GitHubIssueSearchToolInput) -> str:
 
         url = "https://api.github.com/search/issues"
 
         query_parts = ["is:issue", "is:open"]
 
-        if language:
-            query_parts.append(f'language:"{language}"')
-        if labels:
-            label_query = " ".join(f'label:"{label}"' for label in labels)
+        if params.language:
+            query_parts.append(f'language:"{params.language}"')
+        if params.labels:
+            label_query = " ".join(f'label:"{label}"' for label in params.labels)
             query_parts.append(label_query)
 
         query = " ".join(query_parts)

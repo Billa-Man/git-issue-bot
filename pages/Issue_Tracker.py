@@ -7,7 +7,7 @@ from application.functions import display_issues
 from application.exceptions import NoIssuesFoundError
 
 # Title
-st.title('Manual Search')
+st.title('Issue Tracker')
 
 #---------- Topics ----------
 languages = ["python", "javascript", "java", "cpp", "go"]
@@ -44,7 +44,7 @@ if num_results:
 st.write(f"Language: {selected_language} | Labels: {selected_labels} | Number of Results: {num_results}")
 
 #---------- Search Button ----------
-github_tool = GitHubIssueSearchTool(github_token=settings.GITHUB_API_TOKEN)
+github_issue_tool = GitHubIssueSearchTool(github_token=settings.GITHUB_API_TOKEN)
 
 if st.button("Search Repositories and Issues"):
     inputs = {
@@ -53,14 +53,25 @@ if st.button("Search Repositories and Issues"):
     }
 
     with st.spinner("Searching issues..."):
-        issues = github_tool.invoke(inputs)
+        issues = github_issue_tool.invoke(inputs)
 
     if isinstance(issues, list):
         display_issues(issues, num_issues=num_results)
     else:
         st.warning("No issues found matching the specified criteria.")
         raise NoIssuesFoundError()
-        
 
 #---------- Sidebar ----------
-st.sidebar.title('History')
+
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = []
+
+def get_button_label(chat_id, first_message):
+    return f"Chat {chat_id}: {' '.join(first_message.split()[:5])}..."
+
+with st.sidebar:
+    st.header("Chat History")
+    for chat_id, chat in enumerate(st.session_state.chat_history):
+        button_label = get_button_label(chat_id, chat["first_message"])
+        if st.button(button_label):
+            st.session_state.current_chat = chat["messages"]
