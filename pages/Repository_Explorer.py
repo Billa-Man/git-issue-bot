@@ -2,18 +2,25 @@ import streamlit as st
 
 from github_tools import GitHubRepoExplorerTool
 from settings import settings
-from application.functions import display_repos
+from application.functions import display_repos, get_button_label
 
 st.title('Repository Explorer')
 
 #---------- Main Filters ----------
 col1, col2 = st.columns(2)
 with col1:
-    language = st.text_input("Programming Language")
+    languages = ["python", "javascript", "java", "cpp", "go"]
+    language = st.selectbox("Select Language:", options =  languages + ["Others"])
+    if language == "Others":
+        language = st.text_input("Enter the language:")
     topic = st.text_input("Topic")
+    if topic:
+        topic = [t.strip() for t in topic.split(",") if t.strip()]
 
 with col2:
     labels = st.text_input("Labels (comma-separated)")
+    if labels:
+        labels = [label.strip() for label in labels.split(",") if label.strip()]
     sort_by = st.selectbox(
         "Sort By",
         ["stars", "forks", "watchers", "created", "updated", "pushed"]
@@ -32,29 +39,29 @@ with st.expander("Advanced Filters", expanded=True):
 
     col3, col4, col5 = st.columns(3)
     with col3:
-        min_stars = st.number_input("Min Stars", min_value=0)
-        max_stars = st.number_input("Max Stars", min_value=0)
+        min_stars = st.number_input(label = "Min Stars", value = None, min_value=0)
+        max_stars = st.number_input(label = "Max Stars", value = None, min_value=0)
 
     with col4:
-        min_forks = st.number_input("Min Forks", min_value=0)
-        max_forks = st.number_input("Max Forks", min_value=0)
+        min_forks = st.number_input(label = "Min Forks", value = None, min_value=0)
+        max_forks = st.number_input(label = "Max Forks", value = None, min_value=0)
 
     with col5:
-        min_issues = st.number_input("Min Issues", min_value=0)
-        max_issues = st.number_input("Max Issues", min_value=0)
+        min_issues = st.number_input(label = "Min Issues", value = None, min_value=0)
+        max_issues = st.number_input(label = "Max Issues", value = None, min_value=0)
 
     st.subheader("Date Filters")
 
     col6, col7 = st.columns(2)
     with col6:
-        created_after = st.date_input("Created After")
-        updated_after = st.date_input("Updated After")
-        pushed_after = st.date_input("Pushed After")
+        created_after = st.date_input(label = "Created After", value = None)
+        updated_after = st.date_input(label = "Updated After", value = None)
+        pushed_after = st.date_input(label = "Pushed After", value = None)
 
     with col7:
-        created_before = st.date_input("Created Before")
-        updated_before = st.date_input("Updated Before")
-        pushed_before = st.date_input("Pushed Before")
+        created_before = st.date_input(label = "Created Before", value = None)
+        updated_before = st.date_input(label = "Updated Before", value = None)
+        pushed_before = st.date_input(label = "Pushed Before", value = None)
 
 #---------- Search Repositories ----------
 if st.button("Apply Filters"):
@@ -64,13 +71,13 @@ if st.button("Apply Filters"):
         "labels": [label.strip() for label in labels.split(",") if label.strip()],
         "sort_by": sort_by,
         "limit": limit,
-        "min_stars": min_stars if created_before else None,
-        "max_stars": max_stars if created_before else None,
-        "min_forks": min_forks if created_before else None,
-        "max_forks": max_forks if created_before else None,
-        "min_issues": min_issues if created_before else None,
-        "max_issues": max_issues if created_before else None,
-        "query": query if created_before else None,
+        "min_stars": min_stars if min_stars else None,
+        "max_stars": max_stars if max_stars else None,
+        "min_forks": min_forks if min_forks else None,
+        "max_forks": max_forks if max_forks else None,
+        "min_issues": min_issues if min_issues else None,
+        "max_issues": max_issues if max_issues else None,
+        "query": query if query else None,
         "created_before": created_before.isoformat() if created_before else None,
         "created_after": created_after.isoformat() if created_after else None,
         "updated_before": updated_before.isoformat() if updated_before else None,
@@ -79,6 +86,7 @@ if st.button("Apply Filters"):
         "pushed_after": pushed_after.isoformat() if pushed_after else None
     }
 
+    print(tool_input)
     github_repo_tool = GitHubRepoExplorerTool(github_token=settings.GITHUB_API_TOKEN)
 
     with st.spinner("Searching repositories..."):
@@ -93,9 +101,6 @@ if st.button("Apply Filters"):
 #---------- Sidebar ----------
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
-
-def get_button_label(chat_id, first_message):
-    return f"Chat {chat_id}: {' '.join(first_message.split()[:5])}..."
 
 with st.sidebar:
     st.header("Chat History")

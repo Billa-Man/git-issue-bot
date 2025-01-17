@@ -3,7 +3,7 @@ import streamlit as st
 from github_tools import GitHubIssueSearchTool
 from settings import settings
 
-from application.functions import display_issues
+from application.functions import display_issues, get_button_label
 from application.exceptions import NoIssuesFoundError
 
 # Title
@@ -29,7 +29,7 @@ selected_labels = st.multiselect(
 if "Others" in selected_labels:
     selected_labels = selected_labels[:-1]
     other_labels = st.text_input("Enter the labels separated by commas")
-    other_labels = [label.strip() for label in other_labels.split(",")]
+    other_labels = [label.strip() for label in other_labels.split(",")  if label.strip()]
     selected_labels.extend(other_labels)
 
 num_results = st.text_input("Enter number of results returned:")
@@ -65,9 +65,6 @@ if st.button("Search Repositories and Issues"):
 
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
-
-def get_button_label(chat_id, first_message):
-    return f"Chat {chat_id}: {' '.join(first_message.split()[:5])}..."
 
 with st.sidebar:
     st.header("Chat History")

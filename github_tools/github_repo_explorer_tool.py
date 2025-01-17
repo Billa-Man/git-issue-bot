@@ -2,12 +2,13 @@ from langchain.tools import BaseTool
 from typing import Optional, Type, Union, List
 from pydantic import BaseModel, Field
 import requests
+from loguru import logger
 
 
 class GitHubRepoExplorerToolInput(BaseModel):
-    language: Optional[str] = Field(description = "The language to filter issue")
-    topic: Optional[str] = Field(description = "The topic to filter issue")
-    labels: Optional[List[str]] = Field(default_factory = list, description = "List of Labels to filter issues")
+    language: Optional[str] = Field(description = "The language to filter repositories")
+    topics: Optional[List[str]] = Field(default_factory = list, description = "List of topics to filter repositories")
+    labels: Optional[List[str]] = Field(default_factory = list, description = "List of Labels to filter repositories")
 
     sort_by: Optional[str] = Field("stars", description = "Sort results by: stars, forks, watchers, created, updated, pushed")
     limit: Optional[int] = Field(10, description = "Number of results to return")
@@ -31,6 +32,7 @@ class GitHubRepoExplorerToolInput(BaseModel):
 class GitHubRepoExplorerTool(BaseTool):
     name: str = "GitHub Repository Explorer Tool"
     description: str = "Search GitHub repositories based on certain filters."
+
     args_schema: Type[BaseModel] = GitHubRepoExplorerToolInput
     github_token: Optional[str] = Field(default = None, description = "GitHub API token")
     headers: dict = Field(default_factory=dict, description="Request headers")
@@ -47,9 +49,10 @@ class GitHubRepoExplorerTool(BaseTool):
         query_parts = []
 
         if params.language:
-            query_parts.append(f'label:"{params.language}"')
-        if params.topic:
-            query_parts.append(f'topic:"{params.topic}"')
+            query_parts.append(f'language:"{params.language}"')
+        if params.topics:
+            topic_query = " ".join(f'label:"{topic}"' for topic in params.topics)
+            query_parts.append(topic_query)
         if params.labels:
             label_query = " ".join(f'label:"{label}"' for label in params.labels)
             query_parts.append(label_query)
@@ -96,7 +99,7 @@ class GitHubRepoExplorerTool(BaseTool):
     def _run(
         self,
         language: Optional[str] = None,
-        topic: Optional[str] = None,
+        topics: Optional[List[str]] = None,
         labels: Optional[List[str]] = None,
         sort_by: Optional[str] = "stars",
         limit: Optional[int] = 10,
@@ -105,13 +108,14 @@ class GitHubRepoExplorerTool(BaseTool):
         
         params = GitHubRepoExplorerToolInput(
             language=language,
-            topic=topic,
+            topics=topics,
             labels=labels,
             sort_by=sort_by,
             limit=limit,
             **kwargs
         )
         search_query = self._build_query(params)
+        logger.info(f"Searching repositories with query: {search_query}")
         
         base_url = "https://api.github.com/search/repositories"
         response = requests.get(

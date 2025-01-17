@@ -2,6 +2,7 @@ from langchain.tools import BaseTool
 import requests
 from typing import Optional, Type, List
 from pydantic import BaseModel, Field
+from loguru import logger
 
 
 class GitHubIssueSearchToolInput(BaseModel):
@@ -37,7 +38,7 @@ class GitHubIssueSearchTool(BaseTool):
             query_parts.append(label_query)
 
         query = " ".join(query_parts)
-        print(query)
+        logger.info(f"Searching repositories with query: {query}")
         params = {"q": query, "sort": "created", "order": "desc"}
 
         response = requests.get(url, headers=self.headers, params=params)
