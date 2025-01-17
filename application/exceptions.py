@@ -1,0 +1,2 @@
+class NoIssuesFoundError(Exception):
+    pass

@@ -1,0 +1,5 @@
+gih
+settings.env
+
+__pycache__/
+*.pyc
