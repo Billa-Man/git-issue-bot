@@ -10,6 +10,9 @@ class Settings(BaseSettings):
   # GitHub API
   GITHUB_API_TOKEN: str | None = "YOUR_GITHUB_API_TOKEN"
 
+  # Riza.io API
+  RIZAIO_API_TOKEN: str | None = "YOUR_RIZAIO_API_TOKEN"
+
   @property
   def OPENAI_MAX_TOKEN_WINDOW(self) -> int:
     official_max_token_window = {

@@ -34,6 +34,8 @@ class GitHubRepoExplorerTool(BaseTool):
     description: str = "Search GitHub repositories based on certain filters."
 
     args_schema: Type[BaseModel] = GitHubRepoExplorerToolInput
+    return_direct: bool = True
+    
     github_token: Optional[str] = Field(default = None, description = "GitHub API token")
     headers: dict = Field(default_factory=dict, description="Request headers")
    
