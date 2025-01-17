@@ -13,14 +13,20 @@ with col1:
     language = st.selectbox("Select Language:", options =  languages + ["Others"])
     if language == "Others":
         language = st.text_input("Enter the language:")
-    topic = st.text_input("Topic")
-    if topic:
-        topic = [t.strip() for t in topic.split(",") if t.strip()]
+
+    topics = st.text_input("Topic (separated by commas)")
+    if topics:
+        topics = [t.strip() for t in topics.split(",") if t.strip()]
+    else:
+        topics = []
 
 with col2:
-    labels = st.text_input("Labels (comma-separated)")
+    labels = st.text_input("Labels (separated by commas)")
     if labels:
         labels = [label.strip() for label in labels.split(",") if label.strip()]
+    else:
+        labels = []
+
     sort_by = st.selectbox(
         "Sort By",
         ["stars", "forks", "watchers", "created", "updated", "pushed"]
@@ -31,7 +37,7 @@ limit = st.slider("Number of Results", min_value=1, max_value=100, value=10)
 
 #---------- Advanced Filters ----------
 
-with st.expander("Advanced Filters", expanded=True):
+with st.expander("Advanced Filters", expanded=False):
 
     query = st.text_input("Search Query")
 
@@ -67,8 +73,8 @@ with st.expander("Advanced Filters", expanded=True):
 if st.button("Apply Filters"):
     tool_input = {
         "language": language,
-        "topic": topic,
-        "labels": [label.strip() for label in labels.split(",") if label.strip()],
+        "topics": topics,
+        "labels": labels,
         "sort_by": sort_by,
         "limit": limit,
         "min_stars": min_stars if min_stars else None,
@@ -86,7 +92,6 @@ if st.button("Apply Filters"):
         "pushed_after": pushed_after.isoformat() if pushed_after else None
     }
 
-    print(tool_input)
     github_repo_tool = GitHubRepoExplorerTool(github_token=settings.GITHUB_API_TOKEN)
 
     with st.spinner("Searching repositories..."):

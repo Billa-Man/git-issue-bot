@@ -25,9 +25,10 @@ class GitHubIssueSearchTool(BaseTool):
             "Accept": "application/vnd.github.v3+json"
         }
 
-    def _run(self, params: GitHubIssueSearchToolInput) -> str:
+    def _run(self, **kwargs) -> str:
 
         url = "https://api.github.com/search/issues"
+        params = GitHubIssueSearchToolInput(**kwargs)
 
         query_parts = ["is:issue", "is:open"]
 

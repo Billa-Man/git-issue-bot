@@ -28,7 +28,7 @@ selected_labels = st.multiselect(
 
 if "Others" in selected_labels:
     selected_labels = selected_labels[:-1]
-    other_labels = st.text_input("Enter the labels separated by commas")
+    other_labels = st.text_input("Enter the labels (separated by commas)")
     other_labels = [label.strip() for label in other_labels.split(",")  if label.strip()]
     selected_labels.extend(other_labels)
 
