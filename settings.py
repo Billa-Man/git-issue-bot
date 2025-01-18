@@ -14,7 +14,7 @@ class Settings(BaseSettings):
   RIZAIO_API_TOKEN: str | None = "YOUR_RIZAIO_API_TOKEN"
 
   # SQL Database
-  SQL_DB_PASSWORD: str | None = "YOUR_SQL_DB_PASSWORD"
+  POSTGRES_PASSWORD: str | None = "YOUR_POSTGRES_PASSWORD"
 
   @property
   def OPENAI_MAX_TOKEN_WINDOW(self) -> int:
