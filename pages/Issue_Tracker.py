@@ -11,6 +11,10 @@ st.title('Issue Tracker')
 
 st.logo("application/git-issue-hound-logo.png", size='large')
 
+#---------- STATE ----------
+if 'saved_issues' not in st.session_state:
+    st.session_state.saved_issues = set()
+
 #---------- TOPICS ----------
 languages = ["python", "javascript", "java", "cpp", "go"]
 selected_language = st.selectbox("Select Language:", options =  languages + ["Others"])

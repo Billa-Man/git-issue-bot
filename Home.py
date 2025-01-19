@@ -1,4 +1,6 @@
 import streamlit as st
+import json
+from datetime import datetime
 
 from langchain_openai.chat_models import ChatOpenAI
 from langchain.memory import ConversationBufferMemory
@@ -9,6 +11,7 @@ from langchain.callbacks.base import BaseCallbackHandler
 from settings import settings
 from application.chat_tools import tools
 from application.functions import get_button_label
+from database.db_functions import load_chat_history, save_current_chat
 
 #---------- TITLE ----------
 st.set_page_config(page_title='Home')
@@ -66,6 +69,7 @@ if prompt := st.chat_input():
         stream_handler = StreamHandler(assistant_message)
         response = st.session_state.agent_executor.invoke({"input": prompt})
         st.session_state.messages.append(ChatMessage(role="assistant", content=response['output']))
+        save_current_chat()
 
 #---------- SIDEBAR ----------
 if "sidebar_state" not in st.session_state:
@@ -74,9 +78,14 @@ if "sidebar_state" not in st.session_state:
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
+if "session_id" not in st.session_state:
+    st.session_state.session_id = str(datetime.now().timestamp())
+
 with st.sidebar:
     st.header("Chat History")
-    for chat_id, chat in enumerate(st.session_state.chat_history):
-        button_label = get_button_label(chat_id, chat["first_message"])
+    chats = load_chat_history(st.session_state.session_id)
+    
+    for chat_id, first_message, messages in chats:
+        button_label = get_button_label(chat_id, first_message)
         if st.button(button_label):
-            st.session_state.current_chat = chat["messages"]
+            st.session_state.current_chat = json.loads(messages)

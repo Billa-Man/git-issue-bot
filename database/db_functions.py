@@ -1,6 +1,8 @@
+import json
+
 import psycopg2
 from psycopg2 import OperationalError
-import requests
+
 import streamlit as st
 from settings import settings
 
@@ -20,29 +22,93 @@ def get_db_connection():
         return None
 
 #---------- RETRIEVE, ADD & DELETE REPOS ----------
-def add_bookmark_to_db(repo_name, user_id=None):
+def add_bookmark_to_db(type, website, user_id=None):
     conn = get_db_connection()
+
     with conn.cursor() as cursor:
-        cursor.execute(
-            "INSERT INTO bookmarkedrepositories (repo_name, user_id) VALUES (%s, %s)",
-            (repo_name, user_id)
-        )
+        if type == "issue":
+            query = "INSERT INTO bookmarkedissues (website, user_id) VALUES (%s, %s)"
+        elif type == "repository":
+            query = "INSERT INTO bookmarkedrepositories (website, user_id) VALUES (%s, %s)"
+        cursor.execute(query, (website, user_id))
     conn.commit()
 
 
-def get_bookmarked_repos_from_db(user_id=None):
+def get_bookmarks_from_db(type, user_id=None):
     conn = get_db_connection()
+
     with conn.cursor() as cursor:
         if user_id:
-            cursor.execute("SELECT repo_name FROM bookmarkedrepositories WHERE user_id = %s ORDER BY timestamp DESC", (user_id,))
+            if type == "issue":
+                query = "SELECT website FROM bookmarkedissues WHERE user_id = %s ORDER BY timestamp DESC"
+            elif type == "repository":
+                query = "SELECT website FROM bookmarkedrepositories WHERE user_id = %s ORDER BY timestamp DESC"
+            cursor.execute(query, (user_id,))
         else:
-            cursor.execute("SELECT repo_name FROM bookmarkedrepositories ORDER BY timestamp DESC")
+            if type == "issue":
+                query = "SELECT website FROM bookmarkedissues ORDER BY timestamp DESC"
+            elif type == "repository":
+                query =  "SELECT website FROM bookmarkedrepositories ORDER BY timestamp DESC"
+            cursor.execute(query)
         rows = cursor.fetchall()
     return [row[0] for row in rows]
 
 
-def delete_bookmark_from_db(repo_name, user_id=None):
+def delete_bookmark_from_db(type, website, user_id=None):
     conn = get_db_connection()
+
     with conn.cursor() as cursor:
-        cursor.execute("DELETE FROM bookmarkedrepositories WHERE repo_name = %s AND user_id = %s", (repo_name, user_id))
+        if type == "issue":
+            query = "DELETE FROM bookmarkedissues WHERE website = %s AND user_id = %s"
+        elif type == "repository":
+            query = "DELETE FROM bookmarkedrepositories WHERE website = %s AND user_id = %s"      
+        cursor.execute(query, (website, user_id))
     conn.commit()
+
+#---------- SIDEBAR CHAT HISTORY ----------
+def save_chat_to_db(session_id, first_message, messages):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            """
+            INSERT INTO chat_history (session_id, first_message, messages)
+            VALUES (%s, %s, %s)
+            RETURNING chat_id
+            """,
+            (session_id, first_message, json.dumps(messages))
+        )
+        chat_id = cur.fetchone()[0]
+        conn.commit()
+        return chat_id
+    finally:
+        cur.close()
+        conn.close()
+
+def load_chat_history(session_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            """
+            SELECT chat_id, first_message, messages 
+            FROM chat_history 
+            WHERE session_id = %s 
+            ORDER BY created_at DESC
+            """,
+            (session_id,)
+        )
+        return cur.fetchall()
+    finally:
+        cur.close()
+        conn.close()
+
+#---------- SAVE CHAT TO CHAT HISTORY ----------
+def save_current_chat():
+    if st.session_state.chat_history:
+        current_chat = st.session_state.chat_history[-1]
+        save_chat_to_db(
+            st.session_state.session_id,
+            current_chat["first_message"],
+            current_chat["messages"]
+        )

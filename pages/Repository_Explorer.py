@@ -10,6 +10,10 @@ st.title('Repository Explorer')
 
 st.logo("application/git-issue-hound-logo.png", size='large')
 
+#---------- STATE ----------
+if 'saved_repos' not in st.session_state:
+    st.session_state.saved_repos = set()
+
 #---------- MAIN FILTERS ----------
 col1, col2 = st.columns(2)
 with col1:
