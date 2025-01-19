@@ -9,6 +9,8 @@ from application.functions import display_issues, get_button_label
 st.set_page_config(page_title='Issue Tracker')
 st.title('Issue Tracker')
 
+st.logo("application/git-issue-hound-logo.png", size='large')
+
 #---------- TOPICS ----------
 languages = ["python", "javascript", "java", "cpp", "go"]
 selected_language = st.selectbox("Select Language:", options =  languages + ["Others"])

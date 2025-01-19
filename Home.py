@@ -10,6 +10,12 @@ from settings import settings
 from application.chat_tools import tools
 from application.functions import get_button_label
 
+#---------- TITLE ----------
+st.set_page_config(page_title='Home')
+st.title('Git Issue Hound')
+
+st.logo("application/git-issue-hound-logo.png", size='large')
+
 #---------- CALLBACK HANDLER ----------
 class StreamHandler(BaseCallbackHandler):
     def __init__(self, container, initial_text=""):

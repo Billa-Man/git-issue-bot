@@ -8,6 +8,8 @@ from application.functions import display_repos, get_button_label
 st.set_page_config(page_title='Repository Explorer')
 st.title('Repository Explorer')
 
+st.logo("application/git-issue-hound-logo.png", size='large')
+
 #---------- MAIN FILTERS ----------
 col1, col2 = st.columns(2)
 with col1:

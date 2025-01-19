@@ -6,6 +6,8 @@ from database.db_functions import add_bookmark_to_db, get_bookmarked_repos_from_
 st.set_page_config(page_title='Bookmarked Repositories')
 st.title('Bookmarked Repositories')
 
+st.logo("application/git-issue-hound-logo.png", size='large')
+
 #---------- MAIN ----------
 if "bookmarked_repos" not in st.session_state:
     st.session_state.bookmarked_repos = get_bookmarked_repos_from_db()
