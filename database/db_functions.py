@@ -19,43 +19,6 @@ def get_db_connection():
         print(f"Error: Unable to connect to the database. Details: {e}")
         return None
 
-#---------- TOP REPOS ----------
-def get_top_repositories(language_filter="All"):
-    github_api_url = "https://api.github.com/search/repositories"
-    headers = {
-        "Accept": "application/vnd.github+json",
-        "Authorization": settings.GITHUB_API_TOKEN
-    }
-
-    params = {
-        "q": "stars:>1",
-        "sort": "stars",
-        "order": "desc",
-        "per_page": 100,
-    }
-
-    if language_filter != "All":
-        params["q"] += f" language:{language_filter}"
-
-    all_repositories = []
-    
-    for page in range(1, 11):
-        params["page"] = page
-        response = requests.get(github_api_url, headers=headers, params=params)
-
-        if response.status_code == 200:
-            data = response.json()
-            repositories = data.get("items", [])
-            all_repositories.extend(repositories)
-
-            if len(repositories) < 100:
-                break
-        else:
-            st.error(f"Failed to fetch data: {response.status_code} {response.text}")
-            break
-
-    return all_repositories
-
 #---------- RETRIEVE, ADD & DELETE REPOS ----------
 def add_bookmark_to_db(repo_name, user_id=None):
     conn = get_db_connection()

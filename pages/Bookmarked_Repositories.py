@@ -36,7 +36,6 @@ if "sidebar_state" not in st.session_state:
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
-
 with st.sidebar:
     st.header("Chat History")
     for chat_id, chat in enumerate(st.session_state.chat_history):

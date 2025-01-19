@@ -30,11 +30,11 @@ class GitHubRepoExplorerToolInput(BaseModel):
 
 
 class GitHubRepoExplorerTool(BaseTool):
-    name: str = "GitHub Repository Explorer Tool"
+    name: str = "github_repository_explorer_tool"
     description: str = "Search GitHub repositories based on certain filters."
 
     args_schema: Type[BaseModel] = GitHubRepoExplorerToolInput
-    return_direct: bool = True
+    return_direct: bool = False
     
     github_token: Optional[str] = Field(default = None, description = "GitHub API token")
     headers: dict = Field(default_factory=dict, description="Request headers")

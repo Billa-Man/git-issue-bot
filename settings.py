@@ -1,7 +1,7 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
-  model_config = SettingsConfigDict(env_file="settings.env", env_file_encoding="utf-8")
+  model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
   # OpenAI API
   OPENAI_MODEL_ID: str = "gpt-4o-mini"
@@ -9,9 +9,6 @@ class Settings(BaseSettings):
 
   # GitHub API
   GITHUB_API_TOKEN: str | None = "YOUR_GITHUB_API_TOKEN"
-
-  # Riza.io API
-  RIZAIO_API_TOKEN: str | None = "YOUR_RIZAIO_API_TOKEN"
 
   # SQL Database
   POSTGRES_PASSWORD: str | None = "YOUR_POSTGRES_PASSWORD"
