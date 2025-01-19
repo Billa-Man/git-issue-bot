@@ -4,10 +4,11 @@ from github_tools import GitHubRepoExplorerTool
 from settings import settings
 from application.functions import display_repos, get_button_label
 
+#---------- TITLE ----------
 st.set_page_config(page_title='Repository Explorer')
 st.title('Repository Explorer')
 
-#---------- Main Filters ----------
+#---------- MAIN FILTERS ----------
 col1, col2 = st.columns(2)
 with col1:
     languages = ["python", "javascript", "java", "cpp", "go"]
@@ -35,9 +36,7 @@ with col2:
 
 limit = st.slider("Number of Results", min_value=1, max_value=100, value=10)
 
-
-#---------- Advanced Filters ----------
-
+#---------- ADVANCED FILTERS ----------
 with st.expander("Advanced Filters", expanded=False):
 
     query = st.text_input("Search Query")
@@ -70,7 +69,7 @@ with st.expander("Advanced Filters", expanded=False):
         updated_before = st.date_input(label = "Updated Before", value = None)
         pushed_before = st.date_input(label = "Pushed Before", value = None)
 
-#---------- Search Repositories ----------
+#---------- SEARCH REPOSITORIES ----------
 if st.button("Apply Filters"):
     tool_input = {
         "language": language,
@@ -103,8 +102,7 @@ if st.button("Apply Filters"):
     else:
         st.warning("No repositories found matching the specified criteria.")
 
-
-#---------- Sidebar ----------
+#---------- SIDEBAR ----------
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 

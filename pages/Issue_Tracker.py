@@ -4,19 +4,17 @@ from github_tools import GitHubIssueSearchTool
 from settings import settings
 
 from application.functions import display_issues, get_button_label
-from application.exceptions import NoIssuesFoundError
 
-# Title
+#---------- TITLE ----------
 st.set_page_config(page_title='Issue Tracker')
 st.title('Issue Tracker')
 
-#---------- Topics ----------
+#---------- TOPICS ----------
 languages = ["python", "javascript", "java", "cpp", "go"]
 selected_language = st.selectbox("Select Language:", options =  languages + ["Others"])
 if selected_language == "Others":
     selected_language = st.text_input("Enter the language:")
 
-# Issue Tags
 default_github_labels = ['bug', 'documentation', 'duplicate', 'enhancement', 'good first issue',
                          'help wanted', 'invalid', 'question', 'wontfix']
 
@@ -41,10 +39,10 @@ if num_results:
     else:
         st.error("Please enter a valid integer")
 
-#---------- Display the selection ----------
+#---------- DISPLAY SELECTION ----------
 st.write(f"Language: {selected_language} | Labels: {selected_labels} | Number of Results: {num_results}")
 
-#---------- Search Button ----------
+#---------- SEARCH BUTTON ----------
 github_issue_tool = GitHubIssueSearchTool(github_token=settings.GITHUB_API_TOKEN)
 
 if st.button("Search Repositories and Issues"):
@@ -61,8 +59,7 @@ if st.button("Search Repositories and Issues"):
     else:
         st.warning("No issues found matching the specified criteria.")
 
-#---------- Sidebar ----------
-
+#---------- SIDEBAR ----------
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 

@@ -3,39 +3,38 @@ import pandas as pd
 from loguru import logger
 
 from application.functions import get_button_label
-from database.db_functions import get_db_connection
+from database.db_functions import get_top_repositories
 
 #---------- TITLE ----------
-st.set_page_config(page_title='Trending Repositories')
-st.title('Trending Repositories')
+st.set_page_config(page_title='Top Repositories')
+st.title('Top Repositories')
 
-st.header("Filters")
 language_filter = st.selectbox(
     "Select Language",
     ["All", "Python", "JavaScript", "Java", "Go"]
 )
 
 #---------- DATABASE ----------
-conn = get_db_connection()
+top_repos = get_top_repositories(language_filter)
 
-query = """
-    SELECT repo_name, description, stars, forks, language 
-    FROM Repositories 
-    WHERE (%s = 'All' OR language = %s)
-    ORDER BY stars DESC
-"""
+#---------- PROCESS AND DISPLAY REPOS ----------
+if top_repos:
 
-logger.info(f"Connection: {conn}")
+    data = []
+    for repo in top_repos:
+        data.append({
+            "repo_name": repo["name"],
+            "description": repo["description"],
+            "stars": repo["stargazers_count"],
+            "forks": repo["forks_count"],
+            "language": repo["language"],
+        })
 
-df = pd.read_sql(query, conn, params=[language_filter, language_filter])
+    df = pd.DataFrame(data)
+    st.dataframe(df, use_container_width=True)
 
-
-st.dataframe(df, use_container_width=True)
-
-st.metric("Total Repositories", len(df))
-if len(df) > 0:
-    st.metric("Most Stars", df['stars'].max())
-    st.metric("Most Forks", df['forks'].max())
+else:
+    st.warning("No repositories to display.")
 
 #---------- SIDEBAR ----------
 if "chat_history" not in st.session_state:
