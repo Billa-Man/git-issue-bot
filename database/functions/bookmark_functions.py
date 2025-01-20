@@ -2,45 +2,37 @@ import streamlit as st
 from database.functions.connect_database import get_db_connection
 
 #---------- RETRIEVE, ADD & DELETE REPOS ----------
-def add_bookmark_to_db(type, website, user_id=None):
+def add_bookmark_to_db(type, website):
+    with get_db_connection() as conn:
+        with conn.cursor() as cursor:
+            if type == "issue":
+                query = "INSERT INTO bookmarkedissues (website) VALUES (%s) ON CONFLICT (website) DO NOTHING"
+            elif type == "repository":
+                query = "INSERT INTO bookmarkedrepositories (website) VALUES (%s) ON CONFLICT (website) DO NOTHING"
+            cursor.execute(query, (website,))
+        conn.commit()
+
+
+def get_bookmarks_from_db(type):
     conn = get_db_connection()
 
     with conn.cursor() as cursor:
         if type == "issue":
-            query = "INSERT INTO bookmarkedissues (website, user_id) VALUES (%s, %s) ON CONFLICT (website) DO NOTHING"
+            query = "SELECT website FROM bookmarkedissues ORDER BY timestamp DESC"
         elif type == "repository":
-            query = "INSERT INTO bookmarkedrepositories (website, user_id) VALUES (%s, %s) ON CONFLICT (website) DO NOTHING"
-        cursor.execute(query, (website, user_id))
-    conn.commit()
-
-@st.cache_data
-def get_bookmarks_from_db(type, user_id=None):
-    conn = get_db_connection()
-
-    with conn.cursor() as cursor:
-        if user_id:
-            if type == "issue":
-                query = "SELECT website FROM bookmarkedissues WHERE user_id = %s ORDER BY timestamp DESC"
-            elif type == "repository":
-                query = "SELECT website FROM bookmarkedrepositories WHERE user_id = %s ORDER BY timestamp DESC"
-            cursor.execute(query, (user_id,))
-        else:
-            if type == "issue":
-                query = "SELECT website FROM bookmarkedissues ORDER BY timestamp DESC"
-            elif type == "repository":
-                query =  "SELECT website FROM bookmarkedrepositories ORDER BY timestamp DESC"
-            cursor.execute(query)
+            query =  "SELECT website FROM bookmarkedrepositories ORDER BY timestamp DESC"
+        cursor.execute(query)
         rows = cursor.fetchall()
     return [row[0] for row in rows]
 
 
-def delete_bookmark_from_db(type, website, user_id=None):
+def delete_bookmark_from_db(type, website):
     conn = get_db_connection()
 
     with conn.cursor() as cursor:
         if type == "issue":
-            query = "DELETE FROM bookmarkedissues WHERE website = %s AND user_id = %s"
+            query = "DELETE FROM bookmarkedissues WHERE website = %s"
         elif type == "repository":
-            query = "DELETE FROM bookmarkedrepositories WHERE website = %s AND user_id = %s"      
-        cursor.execute(query, (website, user_id))
+            query = "DELETE FROM bookmarkedrepositories WHERE website = %s"
+        cursor.execute(query, (website,))
     conn.commit()

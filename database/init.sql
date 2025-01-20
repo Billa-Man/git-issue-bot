@@ -2,7 +2,6 @@
 CREATE TABLE IF NOT EXISTS bookmarkedrepositories (
     id SERIAL PRIMARY KEY,
     website VARCHAR(255) NOT NULL,
-    user_id INT,
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(website)
 );
@@ -11,7 +10,6 @@ CREATE TABLE IF NOT EXISTS bookmarkedrepositories (
 CREATE TABLE IF NOT EXISTS bookmarkedissues (
     id SERIAL PRIMARY KEY,
     website VARCHAR(255) NOT NULL,
-    user_id INT,
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(website)
 );

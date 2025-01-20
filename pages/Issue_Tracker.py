@@ -93,7 +93,7 @@ st.write(f"Language: {selected_language} | Labels: {selected_labels} | Number of
 #---------- SEARCH BUTTON ----------
 github_issue_tool = GitHubIssueSearchTool(github_token=settings.GITHUB_API_TOKEN)
 
-if st.button("Search Repositories and Issues", type="primary"):
+if st.button("Search Issues", type="primary"):
     inputs = {
         "language": selected_language,
         "labels": selected_labels,

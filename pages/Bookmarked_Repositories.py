@@ -10,6 +10,32 @@ st.title('Bookmarked Repositories')
 
 st.logo("application/git-issue-hound-logo.png", size='large')
 
+#---------- STATE ----------
+if 'bookmarked_repos' not in st.session_state:
+    st.session_state.bookmarked_repos = get_bookmarks_from_db(type="repository")
+
+#---------- MAIN ----------
+repo_to_add = st.text_input("Add a repository to bookmarks:")
+if st.button("Add Bookmark", type="primary") and repo_to_add:
+    st.session_state.bookmarked_repos.append(repo_to_add)
+    add_bookmark_to_db(type="repository", website=repo_to_add)
+    st.success(f"Added {repo_to_add} to bookmarks.")
+
+st.divider()
+
+st.subheader("Saved Repositories:")
+bookmarked_repos = get_bookmarks_from_db(type="repository")
+
+for i, repo in enumerate(bookmarked_repos):
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        st.write(repo)
+    with col2:
+        if st.button("🗑️ Delete", type="primary", key=f"delete_{i}"):
+            delete_bookmark_from_db(type="repository", website=repo)
+            st.cache_data.clear()
+            st.rerun()
+
 #---------- SIDEBAR ----------
 with st.sidebar:
     st.header("Chat History")
@@ -54,27 +80,3 @@ with st.sidebar:
                 st.session_state.messages = [ChatMessage(role="assistant", content="Hi, How can I help you?")]
                 st.query_params.clear()
                 st.switch_page("Home.py")
-
-#---------- MAIN ----------
-if "bookmarked_repos" not in st.session_state:
-    st.session_state.bookmarked_repos = get_bookmarks_from_db(type="repository")
-
-repo_to_add = st.text_input("Add a repository to bookmarks:")
-if st.button("Add Bookmark", type="primary") and repo_to_add:
-    st.session_state.bookmarked_repos.append(repo_to_add)
-    add_bookmark_to_db(type="repository", website=repo_to_add)
-    st.success(f"Added {repo_to_add} to bookmarks.")
-
-st.divider()
-st.subheader("Saved Repositories:")
-bookmarked_repos = get_bookmarks_from_db(type="repository", user_id=None)
-
-for i, repo in enumerate(bookmarked_repos):
-    col1, col2 = st.columns([3, 1])
-    with col1:
-        st.write(repo)
-    with col2:
-        if st.button("🗑️ Delete", type="primary", key=f"delete_{i}"):
-            delete_bookmark_from_db(type="repository", website=repo)
-            st.cache_data.clear()
-            st.rerun()
