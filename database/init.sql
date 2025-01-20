@@ -19,7 +19,8 @@ CREATE TABLE IF NOT EXISTS bookmarkedissues (
 -- CHAT HISTORY
 CREATE TABLE IF NOT EXISTS chat_history (
     id SERIAL PRIMARY KEY,
+    title TEXT NOT NULL,
     chat JSONB NOT NULL,
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(chat)
+    UNIQUE(title)
 );

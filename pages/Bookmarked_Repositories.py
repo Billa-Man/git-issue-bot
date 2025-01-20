@@ -18,7 +18,7 @@ with st.sidebar:
     
     chat_labels = ["New Chat"]
     for chat in chat_histories:
-        first_message = next((msg['content'] for msg in chat[0] if msg['role'] == 'user'), "Empty Chat")
+        first_message = chat[1] if chat[1] else "Untitled Chat"
         truncated_label = first_message[:50] + ("..." if len(first_message) > 50 else "")
         chat_labels.append(truncated_label)
     
@@ -33,8 +33,8 @@ with st.sidebar:
         with col1:
             if st.button("New Chat", type="primary", use_container_width=True):
                 st.session_state.messages = [ChatMessage(role="assistant", content="Hi, How can I help you?")]
-                st.query_params['reload'] = 'true'
-                st.rerun()
+                st.query_params.clear()
+                st.switch_page("Home.py")
         with col2:
             if st.button("Load Chat", type="secondary", use_container_width=True):
                 chat_index = chat_labels.index(selected_chat) - 1
@@ -45,22 +45,22 @@ with st.sidebar:
                         content=msg['content']
                     ) for msg in loaded_messages
                 ]
-                st.query_params['reload'] = 'true'
-                st.rerun()
+                st.query_params.clear()
+                st.switch_page("Home.py")
     else:
         col1, col2 = st.columns(2)
         with col1:
             if st.button("New Chat", type="primary", use_container_width=True):
                 st.session_state.messages = [ChatMessage(role="assistant", content="Hi, How can I help you?")]
-                st.query_params['reload'] = 'true'
-                st.rerun()
+                st.query_params.clear()
+                st.switch_page("Home.py")
 
 #---------- MAIN ----------
 if "bookmarked_repos" not in st.session_state:
     st.session_state.bookmarked_repos = get_bookmarks_from_db(type="repository")
 
 repo_to_add = st.text_input("Add a repository to bookmarks:")
-if st.button("Add Bookmark") and repo_to_add:
+if st.button("Add Bookmark", type="primary") and repo_to_add:
     st.session_state.bookmarked_repos.append(repo_to_add)
     add_bookmark_to_db(type="repository", website=repo_to_add)
     st.success(f"Added {repo_to_add} to bookmarks.")
@@ -74,7 +74,7 @@ for i, repo in enumerate(bookmarked_repos):
     with col1:
         st.write(repo)
     with col2:
-        if st.button("🗑️ Delete", key=f"delete_{i}"):
+        if st.button("🗑️ Delete", type="primary", key=f"delete_{i}"):
             delete_bookmark_from_db(type="repository", website=repo)
             st.cache_data.clear()
             st.rerun()

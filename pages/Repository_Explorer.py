@@ -20,7 +20,7 @@ with st.sidebar:
     
     chat_labels = ["New Chat"]
     for chat in chat_histories:
-        first_message = next((msg['content'] for msg in chat[0] if msg['role'] == 'user'), "Empty Chat")
+        first_message = chat[1] if chat[1] else "Untitled Chat"
         truncated_label = first_message[:50] + ("..." if len(first_message) > 50 else "")
         chat_labels.append(truncated_label)
     
@@ -35,8 +35,8 @@ with st.sidebar:
         with col1:
             if st.button("New Chat", type="primary", use_container_width=True):
                 st.session_state.messages = [ChatMessage(role="assistant", content="Hi, How can I help you?")]
-                st.query_params['reload'] = 'true'
-                st.rerun()
+                st.query_params.clear()
+                st.switch_page("Home.py")
         with col2:
             if st.button("Load Chat", type="secondary", use_container_width=True):
                 chat_index = chat_labels.index(selected_chat) - 1
@@ -47,15 +47,15 @@ with st.sidebar:
                         content=msg['content']
                     ) for msg in loaded_messages
                 ]
-                st.query_params['reload'] = 'true'
-                st.rerun()
+                st.query_params.clear()
+                st.switch_page("Home.py")
     else:
         col1, col2 = st.columns(2)
         with col1:
             if st.button("New Chat", type="primary", use_container_width=True):
                 st.session_state.messages = [ChatMessage(role="assistant", content="Hi, How can I help you?")]
-                st.query_params['reload'] = 'true'
-                st.rerun()
+                st.query_params.clear()
+                st.switch_page("Home.py")
 
 #---------- MAIN FILTERS ----------
 col1, col2 = st.columns(2)
@@ -119,7 +119,7 @@ with st.expander("Advanced Filters", expanded=False):
         pushed_before = st.date_input(label = "Pushed Before", value = None)
 
 #---------- SEARCH REPOSITORIES ----------
-if st.button("Apply Filters"):
+if st.button("Apply Filters", type="primary"):
     tool_input = {
         "language": language,
         "topics": topics,
