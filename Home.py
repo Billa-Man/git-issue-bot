@@ -1,7 +1,4 @@
 import streamlit as st
-import json
-from datetime import datetime
-import pandas as pd
 
 from langchain_openai.chat_models import ChatOpenAI
 from langchain.memory import ConversationBufferWindowMemory
@@ -28,7 +25,6 @@ class StreamHandler(BaseCallbackHandler):
     def on_llm_new_token(self, token: str, **kwargs) -> None:
         self.text += token
 
-
 #---------- SIDEBAR ----------
 with st.sidebar:
     st.header("Chat History")
@@ -50,7 +46,7 @@ with st.sidebar:
             st.rerun()
     
     if st.button("New Chat"):
-        st.session_state.messages = []
+        st.session_state.messages = [ChatMessage(role="assistant", content="Hi, How can I help you?")]
         st.rerun()
 
 #---------- CHATBOT ---------
