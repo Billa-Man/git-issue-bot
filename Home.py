@@ -113,6 +113,7 @@ if prompt := st.chat_input():
     with assistant_message:
         stream_handler = StreamHandler(assistant_message)
         response = st.session_state.agent_executor.invoke({"input": prompt})
+        response = response if response else {"output": "Sorry, please try again with a different prompt."}
         st.session_state.messages.append(ChatMessage(role="assistant", content=response['output']))
         st.write(response['output'] if response else "Sorry, please try again with a different prompt.")
         save_chat_history()
