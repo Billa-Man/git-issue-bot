@@ -1,7 +1,7 @@
 import streamlit as st
 
-from database.db_functions import add_bookmark_to_db, get_bookmarks_from_db, delete_bookmark_from_db
-from database.db_functions import get_chat_history
+from database.functions.bookmark_functions import add_bookmark_to_db, get_bookmarks_from_db, delete_bookmark_from_db
+from database.functions.sidebar_functions import get_chat_history
 
 #---------- TITLE ----------
 st.set_page_config(page_title='Bookmarked Repositories')
@@ -44,7 +44,7 @@ if st.button("Add Bookmark") and repo_to_add:
     st.success(f"Added {repo_to_add} to bookmarks.")
 
 st.divider()
-
+st.subheader("Saved Repositories:")
 bookmarked_repos = get_bookmarks_from_db(type="repository", user_id=None)
 
 for i, repo in enumerate(bookmarked_repos):

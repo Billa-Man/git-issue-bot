@@ -1,7 +1,7 @@
 import streamlit as st
 
-from database.db_functions import add_bookmark_to_db, get_bookmarks_from_db, delete_bookmark_from_db
-from database.db_functions import get_chat_history
+from database.functions.bookmark_functions import add_bookmark_to_db, get_bookmarks_from_db, delete_bookmark_from_db
+from database.functions.sidebar_functions import get_chat_history
 
 #---------- TITLE ----------
 st.set_page_config(page_title='Bookmarked Issues')
@@ -45,7 +45,7 @@ if st.button("Add Bookmark") and issue_to_add:
 
 st.divider()
 
-st.header("Saved Issues:")
+st.subheader("Saved Issues:")
 bookmarked_issues = get_bookmarks_from_db(type="issue", user_id=None)
 
 for i, issue in enumerate(bookmarked_issues):

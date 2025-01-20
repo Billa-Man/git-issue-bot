@@ -11,7 +11,7 @@ from langchain.callbacks.base import BaseCallbackHandler
 
 from settings import settings
 from application.chat_tools import tools
-from database.db_functions import get_chat_history, save_chat_history
+from database.functions.sidebar_functions import get_chat_history, save_chat_history
 
 #---------- TITLE ----------
 st.set_page_config(page_title='Home')

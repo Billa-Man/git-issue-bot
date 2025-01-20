@@ -2,8 +2,8 @@ import streamlit as st
 from github_tools import GitHubRepoExplorerTool
 
 from settings import settings
-from application.functions import display_repos
-from database.db_functions import get_chat_history
+from application.functions.display_outputs import display_repos
+from database.functions.sidebar_functions import get_chat_history
 
 #---------- TITLE ----------
 st.set_page_config(page_title='Repository Explorer')
