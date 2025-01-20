@@ -1,9 +1,10 @@
-import json
-
+import uuid
 import psycopg2
-from psycopg2 import OperationalError
-
 import streamlit as st
+from psycopg2 import OperationalError
+from psycopg2.extras import Json
+from langchain.schema import ChatMessage
+
 from settings import settings
 
 #---------- CONNECT DATABASE ----------
@@ -33,7 +34,7 @@ def add_bookmark_to_db(type, website, user_id=None):
         cursor.execute(query, (website, user_id))
     conn.commit()
 
-
+@st.cache_data
 def get_bookmarks_from_db(type, user_id=None):
     conn = get_db_connection()
 
@@ -66,49 +67,30 @@ def delete_bookmark_from_db(type, website, user_id=None):
     conn.commit()
 
 #---------- SIDEBAR CHAT HISTORY ----------
-def save_chat_to_db(session_id, first_message, messages):
+def save_chat_history():
     conn = get_db_connection()
-    cur = conn.cursor()
-    try:
-        cur.execute(
-            """
-            INSERT INTO chat_history (session_id, first_message, messages)
-            VALUES (%s, %s, %s)
-            RETURNING chat_id
-            """,
-            (session_id, first_message, json.dumps(messages))
-        )
-        chat_id = cur.fetchone()[0]
-        conn.commit()
-        return chat_id
-    finally:
-        cur.close()
-        conn.close()
+    messages = st.session_state.messages
+    print("FUNCTION:", messages)
+    if len(messages) > 1:
+        with conn.cursor() as cursor:
+            for message in messages:
+                cursor.execute("""
+                    INSERT INTO chat_history (role, content)
+                    VALUES (%s, %s)
+                """, (message.role, message.content))
 
-def load_chat_history(session_id):
+
+def get_chat_history():
     conn = get_db_connection()
-    cur = conn.cursor()
-    try:
-        cur.execute(
-            """
-            SELECT chat_id, first_message, messages 
-            FROM chat_history 
-            WHERE session_id = %s 
-            ORDER BY created_at DESC
-            """,
-            (session_id,)
-        )
-        return cur.fetchall()
-    finally:
-        cur.close()
-        conn.close()
+    with conn.cursor() as cursor:
+        cursor.execute("SELECT role, content FROM chat_history ORDER BY timestamp ASC")
+        messages = cursor.fetchall()
 
-#---------- SAVE CHAT TO CHAT HISTORY ----------
-def save_current_chat():
-    if st.session_state.chat_history:
-        current_chat = st.session_state.chat_history[-1]
-        save_chat_to_db(
-            st.session_state.session_id,
-            current_chat["first_message"],
-            current_chat["messages"]
-        )
+        chat_history = [{
+            "role": role,
+            "content": content,
+            "additional_kwargs": {},
+            "response_metadata": {}
+        } for role, content in messages]
+
+        return chat_history

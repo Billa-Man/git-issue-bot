@@ -16,9 +16,8 @@ CREATE TABLE IF NOT EXISTS bookmarkedissues (
 
 -- CHAT HISTORY
 CREATE TABLE chat_history (
-    chat_id SERIAL PRIMARY KEY,
-    session_id TEXT NOT NULL,
-    first_message TEXT NOT NULL,
-    messages JSONB NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    id SERIAL PRIMARY KEY,
+    role VARCHAR(50) NOT NULL,
+    content TEXT NOT NULL,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

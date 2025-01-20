@@ -1,21 +1,21 @@
 import streamlit as st
 import json
 from datetime import datetime
+import pandas as pd
 
 from langchain_openai.chat_models import ChatOpenAI
-from langchain.memory import ConversationBufferMemory
+from langchain.memory import ConversationBufferWindowMemory
 from langchain.agents.agent_toolkits import create_conversational_retrieval_agent
 from langchain.schema import ChatMessage
 from langchain.callbacks.base import BaseCallbackHandler
 
 from settings import settings
 from application.chat_tools import tools
-from application.functions import get_button_label
-from database.db_functions import load_chat_history, save_current_chat
+from database.db_functions import get_chat_history, save_chat_history
 
 #---------- TITLE ----------
 st.set_page_config(page_title='Home')
-st.title('Git Issue Hound')
+st.header('Chat with the bot')
 
 st.logo("application/git-issue-hound-logo.png", size='large')
 
@@ -27,16 +27,43 @@ class StreamHandler(BaseCallbackHandler):
 
     def on_llm_new_token(self, token: str, **kwargs) -> None:
         self.text += token
-        self.container.markdown(self.text, unsafe_allow_html=True)
+
+
+#---------- SIDEBAR ----------
+with st.sidebar:
+    st.header("Chat History")
+    
+    chat_histories = get_chat_history()
+    
+    selected_chat = st.selectbox(
+        "Select Previous Chat",
+        ["New Chat"] + [f"Chat {i+1}" for i in range(len(chat_histories))],
+        key="chat_selector"
+    )
+    
+    if selected_chat != "New Chat":
+
+        if st.button("Load Chat"):
+            st.session_state.messages = []
+            chat_index = int(selected_chat.split()[-1]) - 1
+            st.session_state.messages = chat_histories[chat_index]
+            st.rerun()
+    
+    if st.button("New Chat"):
+        st.session_state.messages = []
+        st.rerun()
 
 #---------- CHATBOT ---------
 chat_tools = tools
 
 if "memory" not in st.session_state:
-    st.session_state.memory = ConversationBufferMemory(
+    st.session_state.memory = ConversationBufferWindowMemory(
         memory_key='chat_history',
         return_messages=True,
-        output_key="output"
+        output_key="output", 
+        human_prefix="user",
+        ai_prefix="assistant",
+        k=3
     )
 
 if "agent_executor" not in st.session_state:
@@ -46,12 +73,13 @@ if "agent_executor" not in st.session_state:
         llm, 
         tools=chat_tools, 
         memory_key='chat_history', 
-        verbose=True
+        verbose=True,
+        system_message="You are a helpful assistant whose job is to interact with the user and answer their queries. If prompted, use the relevant tools to format your answers."
     )
 
 #---------- CHAT OUTPUT ----------
 if "messages" not in st.session_state:
-    st.session_state["messages"] = [ChatMessage(role="assistant", content="How can I help you?")]
+    st.session_state["messages"] = [ChatMessage(role="assistant", content="Hi, How can I help you?")]
 
 for msg in st.session_state.messages:
     st.chat_message(msg.role).write(msg.content)
@@ -69,23 +97,5 @@ if prompt := st.chat_input():
         stream_handler = StreamHandler(assistant_message)
         response = st.session_state.agent_executor.invoke({"input": prompt})
         st.session_state.messages.append(ChatMessage(role="assistant", content=response['output']))
-        save_current_chat()
-
-#---------- SIDEBAR ----------
-if "sidebar_state" not in st.session_state:
-    st.session_state.sidebar_state = {}
-
-if "chat_history" not in st.session_state:
-    st.session_state.chat_history = []
-
-if "session_id" not in st.session_state:
-    st.session_state.session_id = str(datetime.now().timestamp())
-
-with st.sidebar:
-    st.header("Chat History")
-    chats = load_chat_history(st.session_state.session_id)
-    
-    for chat_id, first_message, messages in chats:
-        button_label = get_button_label(chat_id, first_message)
-        if st.button(button_label):
-            st.session_state.current_chat = json.loads(messages)
+        st.write(response['output'])
+        save_chat_history()

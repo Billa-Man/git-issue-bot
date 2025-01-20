@@ -1,9 +1,9 @@
 import streamlit as st
-
 from github_tools import GitHubIssueSearchTool
-from settings import settings
 
-from application.functions import display_issues, get_button_label
+from settings import settings
+from application.functions import display_issues
+from database.db_functions import get_chat_history
 
 #---------- TITLE ----------
 st.set_page_config(page_title='Issue Tracker')
@@ -11,9 +11,29 @@ st.title('Issue Tracker')
 
 st.logo("application/git-issue-hound-logo.png", size='large')
 
-#---------- STATE ----------
-if 'saved_issues' not in st.session_state:
-    st.session_state.saved_issues = set()
+#---------- SIDEBAR ----------
+with st.sidebar:
+    st.header("Chat History")
+    
+    chat_histories = get_chat_history()
+    
+    selected_chat = st.selectbox(
+        "Select Previous Chat",
+        ["New Chat"] + [f"Chat {i+1}" for i in range(len(chat_histories))],
+        key="chat_selector"
+    )
+    
+    if selected_chat != "New Chat":
+
+        if st.button("Load Chat"):
+            st.session_state.messages = []
+            chat_index = int(selected_chat.split()[-1]) - 1
+            st.session_state.messages = chat_histories[chat_index]
+            st.rerun()
+    
+    if st.button("New Chat"):
+        st.session_state.messages = []
+        st.rerun()
 
 #---------- TOPICS ----------
 languages = ["python", "javascript", "java", "cpp", "go"]
@@ -64,14 +84,3 @@ if st.button("Search Repositories and Issues"):
         display_issues(issues, num_issues=num_results)
     else:
         st.warning("No issues found matching the specified criteria.")
-
-#---------- SIDEBAR ----------
-if "chat_history" not in st.session_state:
-    st.session_state.chat_history = []
-
-with st.sidebar:
-    st.header("Chat History")
-    for chat_id, chat in enumerate(st.session_state.chat_history):
-        button_label = get_button_label(chat_id, chat["first_message"])
-        if st.button(button_label):
-            st.session_state.current_chat = chat["messages"]

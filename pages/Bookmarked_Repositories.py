@@ -1,12 +1,37 @@
 import streamlit as st
-from application.functions import get_button_label
+
 from database.db_functions import add_bookmark_to_db, get_bookmarks_from_db, delete_bookmark_from_db
+from database.db_functions import get_chat_history
 
 #---------- TITLE ----------
 st.set_page_config(page_title='Bookmarked Repositories')
 st.title('Bookmarked Repositories')
 
 st.logo("application/git-issue-hound-logo.png", size='large')
+
+#---------- SIDEBAR ----------
+with st.sidebar:
+    st.header("Chat History")
+    
+    chat_histories = get_chat_history()
+    
+    selected_chat = st.selectbox(
+        "Select Previous Chat",
+        ["New Chat"] + [f"Chat {i+1}" for i in range(len(chat_histories))],
+        key="chat_selector"
+    )
+    
+    if selected_chat != "New Chat":
+
+        if st.button("Load Chat"):
+            st.session_state.messages = []
+            chat_index = int(selected_chat.split()[-1]) - 1
+            st.session_state.messages = chat_histories[chat_index]
+            st.rerun()
+    
+    if st.button("New Chat"):
+        st.session_state.messages = []
+        st.rerun()
 
 #---------- MAIN ----------
 if "bookmarked_repos" not in st.session_state:
@@ -30,18 +55,3 @@ for i, repo in enumerate(st.session_state.bookmarked_repos):
             st.session_state.bookmarked_repos.pop(i)
             delete_bookmark_from_db(type="repository", website=repo)
             st.rerun()
-
-#---------- SIDEBAR ----------
-if "sidebar_state" not in st.session_state:
-    st.session_state.sidebar_state = {}
-
-if "chat_history" not in st.session_state:
-    st.session_state.chat_history = []
-
-with st.sidebar:
-    st.header("Chat History")
-    for chat_id, chat in enumerate(st.session_state.chat_history):
-        button_label = get_button_label(chat_id, chat["first_message"])
-        if st.button(button_label):
-            st.session_state.current_chat = chat["messages"]
-
