@@ -24,12 +24,14 @@ with st.sidebar:
     if selected_chat != "New Chat":
 
         if st.button("Load Chat"):
+            st.switch_page("Home.py")
             st.session_state.messages = []
             chat_index = int(selected_chat.split()[-1]) - 1
             st.session_state.messages = chat_histories[chat_index]
             st.rerun()
     
     if st.button("New Chat"):
+        st.switch_page("Home.py")
         st.session_state.messages = []
         st.rerun()
 

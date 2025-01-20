@@ -38,16 +38,33 @@ with st.sidebar:
     )
     
     if selected_chat != "New Chat":
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("New Chat", use_container_width=True):
+                st.session_state.messages = [ChatMessage(role="assistant", content="Hi, How can I help you?")]
+                st.query_params['reload'] = 'true'
+                st.rerun()
+        with col2:
+            if st.button("Load Chat", use_container_width=True):
+                chat_index = int(selected_chat.split()[-1]) - 1
+                loaded_messages = chat_histories[chat_index][0]
+                st.write(loaded_messages)
+                st.session_state.messages = [
+                    ChatMessage(
+                        role=msg['role'],
+                        content=msg['content']
+                    ) for msg in loaded_messages
+                ]
+                st.query_params['reload'] = 'true'
+                st.rerun()
+    else:
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("New Chat", use_container_width=True):
+                st.session_state.messages = [ChatMessage(role="assistant", content="Hi, How can I help you?")]
+                st.query_params['reload'] = 'true'
+                st.rerun()
 
-        if st.button("Load Chat"):
-            st.session_state.messages = []
-            chat_index = int(selected_chat.split()[-1]) - 1
-            st.session_state.messages = chat_histories[chat_index]
-            st.rerun()
-    
-    if st.button("New Chat"):
-        st.session_state.messages = [ChatMessage(role="assistant", content="Hi, How can I help you?")]
-        st.rerun()
 
 #---------- CHATBOT ---------
 chat_tools = tools
