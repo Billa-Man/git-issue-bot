@@ -1,7 +1,8 @@
 import streamlit as st
-from github_tools import GitHubRepoExplorerTool
+from langchain.schema import ChatMessage
 
 from settings import settings
+from github_tools import GitHubRepoExplorerTool
 from application.functions.display_outputs import display_repos
 from database.functions.sidebar_functions import get_chat_history
 
@@ -17,23 +18,44 @@ with st.sidebar:
     
     chat_histories = get_chat_history()
     
+    chat_labels = ["New Chat"]
+    for chat in chat_histories:
+        first_message = next((msg['content'] for msg in chat[0] if msg['role'] == 'user'), "Empty Chat")
+        truncated_label = first_message[:50] + ("..." if len(first_message) > 50 else "")
+        chat_labels.append(truncated_label)
+    
     selected_chat = st.selectbox(
         "Select Previous Chat",
-        ["New Chat"] + [f"Chat {i+1}" for i in range(len(chat_histories))],
+        chat_labels,
         key="chat_selector"
     )
     
     if selected_chat != "New Chat":
-
-        if st.button("Load Chat"):
-            st.session_state.messages = []
-            chat_index = int(selected_chat.split()[-1]) - 1
-            st.session_state.messages = chat_histories[chat_index]
-            st.rerun()
-    
-    if st.button("New Chat"):
-        st.session_state.messages = []
-        st.rerun()
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("New Chat", type="primary", use_container_width=True):
+                st.session_state.messages = [ChatMessage(role="assistant", content="Hi, How can I help you?")]
+                st.query_params['reload'] = 'true'
+                st.rerun()
+        with col2:
+            if st.button("Load Chat", type="secondary", use_container_width=True):
+                chat_index = chat_labels.index(selected_chat) - 1
+                loaded_messages = chat_histories[chat_index][0]
+                st.session_state.messages = [
+                    ChatMessage(
+                        role=msg['role'],
+                        content=msg['content']
+                    ) for msg in loaded_messages
+                ]
+                st.query_params['reload'] = 'true'
+                st.rerun()
+    else:
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("New Chat", type="primary", use_container_width=True):
+                st.session_state.messages = [ChatMessage(role="assistant", content="Hi, How can I help you?")]
+                st.query_params['reload'] = 'true'
+                st.rerun()
 
 #---------- MAIN FILTERS ----------
 col1, col2 = st.columns(2)

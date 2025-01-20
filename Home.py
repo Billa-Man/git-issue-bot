@@ -52,7 +52,7 @@ with st.sidebar:
                 st.rerun()
         with col2:
             if st.button("Load Chat", type="secondary", use_container_width=True):
-                chat_index = chat_labels.index(selected_chat)
+                chat_index = chat_labels.index(selected_chat) - 1
                 loaded_messages = chat_histories[chat_index][0]
                 st.session_state.messages = [
                     ChatMessage(
@@ -69,7 +69,6 @@ with st.sidebar:
                 st.session_state.messages = [ChatMessage(role="assistant", content="Hi, How can I help you?")]
                 st.query_params['reload'] = 'true'
                 st.rerun()
-
 
 #---------- CHATBOT ---------
 chat_tools = tools
