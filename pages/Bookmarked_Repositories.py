@@ -45,13 +45,14 @@ if st.button("Add Bookmark") and repo_to_add:
 
 st.divider()
 
-st.header("Saved Repositories:")
-for i, repo in enumerate(st.session_state.bookmarked_repos):
+bookmarked_repos = get_bookmarks_from_db(type="repository", user_id=None)
+
+for i, repo in enumerate(bookmarked_repos):
     col1, col2 = st.columns([3, 1])
     with col1:
         st.write(repo)
     with col2:
         if st.button("🗑️ Delete", key=f"delete_{i}"):
-            st.session_state.bookmarked_repos.pop(i)
             delete_bookmark_from_db(type="repository", website=repo)
+            st.cache_data.clear()
             st.rerun()

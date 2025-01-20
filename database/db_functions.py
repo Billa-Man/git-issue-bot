@@ -28,9 +28,9 @@ def add_bookmark_to_db(type, website, user_id=None):
 
     with conn.cursor() as cursor:
         if type == "issue":
-            query = "INSERT INTO bookmarkedissues (website, user_id) VALUES (%s, %s)"
+            query = "INSERT INTO bookmarkedissues (website, user_id) VALUES (%s, %s) ON CONFLICT (website) DO NOTHING"
         elif type == "repository":
-            query = "INSERT INTO bookmarkedrepositories (website, user_id) VALUES (%s, %s)"
+            query = "INSERT INTO bookmarkedrepositories (website, user_id) VALUES (%s, %s) ON CONFLICT (website) DO NOTHING"
         cursor.execute(query, (website, user_id))
     conn.commit()
 
@@ -77,6 +77,7 @@ def save_chat_history():
                 cursor.execute("""
                     INSERT INTO chat_history (role, content)
                     VALUES (%s, %s)
+                    ON CONFLICT (content) DO NOTHING
                 """, (message.role, message.content))
 
 
