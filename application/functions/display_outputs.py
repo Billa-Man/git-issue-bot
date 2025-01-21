@@ -1,7 +1,4 @@
 import streamlit as st
-import random
-import json
-
 from database.functions.bookmark_functions import add_bookmark_to_db, get_bookmarks_from_db
 
 #---------- DISPLAY RESULTS ----------
