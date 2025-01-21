@@ -1,4 +1,3 @@
-import streamlit as st
 from database.functions.connect_database import get_db_connection
 
 #---------- RETRIEVE, ADD & DELETE REPOS ----------
