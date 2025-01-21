@@ -35,6 +35,7 @@ This guide will help you set up and run the project locally.
 - Python 3.12
 - Docker and Docker Compose
 - Git
+- An OpenAI API key
 
 ## Installation Steps
 First, clone the repository
