@@ -43,7 +43,7 @@ This guide will help you set up and run the project locally.
 First, clone the repository
 ```
 git clone https://github.com/Billa-Man/git-issue-bot.git
-cd <project-directory>
+cd git-issue-bot
 ```
 
 ### 1. Virtual Environment Setup
