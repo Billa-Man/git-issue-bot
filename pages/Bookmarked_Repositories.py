@@ -33,6 +33,7 @@ for i, repo in enumerate(bookmarked_repos):
     with col2:
         if st.button("🗑️ Delete", type="primary", key=f"delete_{i}"):
             delete_bookmark_from_db(type="repository", website=repo)
+            st.session_state.bookmarked_repos.remove(repo)
             st.cache_data.clear()
             st.rerun()
 

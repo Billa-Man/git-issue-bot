@@ -45,21 +45,26 @@ class GitHubIssueSearchTool(BaseTool):
         logger.info(f"Searching repositories with query: {query}")
         params = {"q": query, "sort": "created", "order": "desc"}
 
-        response = requests.get(url, headers=self.headers, params=params)
-        response.raise_for_status()
+        try: 
+            response = requests.get(url, headers=self.headers, params=params)
+            response.raise_for_status()
 
-        data = response.json()
-        if not data.get("items"):
-            return "No issues found matching the specified criteria. Check the language and labels."
-            
-        results = []
-        for issue in data["items"]:
-            results.append({
-                "number": issue["number"],
-                "title": issue["title"],
-                "labels": [label["name"] for label in issue["labels"]],
-                "url": issue["html_url"],
-                "summary": issue['body'],
-            })
-            
-        return results
+            data = response.json()
+            if not data.get("items"):
+                return "No issues found matching the specified criteria. Check the language and labels."
+                
+            results = []
+            for issue in data["items"]:
+                results.append({
+                    "number": issue["number"],
+                    "title": issue["title"],
+                    "labels": [label["name"] for label in issue["labels"]],
+                    "url": issue["html_url"],
+                    "summary": issue['body'],
+                })
+                
+            return results
+        
+        except Exception as err:
+            logger.error(f"An error occurred: {err}")
+            return f"An error occurred: {err}"

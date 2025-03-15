@@ -120,26 +120,32 @@ class GitHubRepoExplorerTool(BaseTool):
         logger.info(f"Searching repositories with query: {search_query}")
         
         base_url = "https://api.github.com/search/repositories"
-        response = requests.get(
-            base_url,
-            headers=self.headers,
-            params={
-                "q": search_query,
-                "sort": params.sort_by,
-                "order": "desc",
-                "per_page": params.limit
-            }
-        )
 
-        response.raise_for_status()
-        data = response.json()
+        try:
+            response = requests.get(
+                base_url,
+                headers=self.headers,
+                params={
+                    "q": search_query,
+                    "sort": params.sort_by,
+                    "order": "desc",
+                    "per_page": params.limit
+                }
+            )
 
-        if not data.get("items"):
-            return "No repositories found matching the specified criteria. Change filters and try again."
+            response.raise_for_status()
+            data = response.json()
+
+            if not data.get("items"):
+                return "No repositories found matching the specified criteria. Change filters and try again."
+            
+            results = []
+            for repo in data.get("items", [])[:params.limit]:
+                results.append(self._format_repository(repo))
+            
+            return results
         
-        results = []
-        for repo in data.get("items", [])[:params.limit]:
-            results.append(self._format_repository(repo))
-        
-        return results
+        except Exception as err:
+            logger.error(f"An error occurred: {err}")
+            return f"An error occurred: {err}"
 

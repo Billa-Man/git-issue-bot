@@ -33,6 +33,7 @@ for i, issue in enumerate(bookmarked_issues):
     with col2:
         if st.button("🗑️ Delete", type="primary", key=f"delete_{i}"):
             delete_bookmark_from_db(type="issue", website=issue)
+            st.session_state.bookmarked_issues.remove(issue)
             st.cache_data.clear()
             st.rerun()
 
